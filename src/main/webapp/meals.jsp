@@ -1,10 +1,5 @@
-<%@ page import="java.util.List" %>
-<%@ page import="ru.javawebinar.topjava.model.Meal" %>
-<%@ page import="java.util.Map" %>
-<%@ page import="java.time.LocalDate" %>
-<%@ page import="java.util.stream.Collectors" %>
-<%@ page import="java.time.format.DateTimeFormatter" %>
-<%@ page import="ru.javawebinar.topjava.web.MealServlet" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <html lang="ru">
 <head>
@@ -27,25 +22,17 @@
     </tr>
     </thead>
     <tbody>
-    <%
-        List<Meal> meals = (List<Meal>) request.getAttribute("meals");
-        Map<LocalDate, Integer> caloriesSumByDate = meals.stream()
-                .collect(Collectors.groupingBy(Meal::getDate, Collectors.summingInt(Meal::getCalories)));
-        for (Meal meal : meals) {
-            if (caloriesSumByDate.get(meal.getDate()) > MealServlet.caloriesPerDay) {
-    %>
-    <tr style="color: red"><%} else {%>
-    <tr style="color: green"><%}%>
-        <td><%=meal.getDateTime().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm"))%>
-        </td>
-        <td><%=meal.getDescription()%>
-        </td>
-        <td><%=meal.getCalories()%>
-        </td>
-        <td>Edit</td>
-        <td>Delete</td>
-    </tr>
-    <%}%>
+    <jsp:useBean id="meals" scope="request" type="java.util.List"/>
+    <c:forEach var="meal" items="${meals}">
+        <tr style="color:${meal.excess ? 'red' : 'green'}">
+            <td><fmt:parseDate value="${meal.dateTime}" pattern="yyyy-MM-dd'T'HH:mm" var="dateTime" type="both"/>
+                <fmt:formatDate pattern="yyyy-MM-dd HH:mm" value="${dateTime}"/></td>
+            <td>${meal.description}</td>
+            <td>${meal.calories}</td>
+            <td>Edit</td>
+            <td>Delete</td>
+        </tr>
+    </c:forEach>
     </tbody>
 </table>
 </body>
