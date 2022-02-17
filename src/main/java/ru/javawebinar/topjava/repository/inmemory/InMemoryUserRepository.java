@@ -6,11 +6,9 @@ import org.springframework.stereotype.Repository;
 import ru.javawebinar.topjava.model.Role;
 import ru.javawebinar.topjava.model.User;
 import ru.javawebinar.topjava.repository.UserRepository;
+import ru.javawebinar.topjava.util.exception.NotFoundException;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
@@ -20,14 +18,14 @@ public class InMemoryUserRepository implements UserRepository {
     private final Map<Integer, User> repository = new ConcurrentHashMap<>();
     private final AtomicInteger counter = new AtomicInteger(0);
     private static final Logger log = LoggerFactory.getLogger(InMemoryUserRepository.class);
-    private static final List<User> users = Arrays.asList(
-            new User(null, "Vasya", "pupkin@mail.ru", "111", Role.USER, Role.ADMIN),
-            new User(null, "Kolya", "kolya@mail.ru", "123", Role.USER),
-            new User(null, "Bebra", "bebra@mail.ru", "777", Role.USER),
-            new User(null, "Zebra", "zebra@mail.ru", "666", Role.USER),
-            new User(null, "Zebra", "zebra_official@mail.ru", "999", Role.USER)
-            );
     {
+        List<User> users = Arrays.asList(
+                new User(null, "Vasya", "pupkin@mail.ru", "111", Role.USER, Role.ADMIN),
+                new User(null, "Kolya", "kolya@mail.ru", "123", Role.USER),
+                new User(null, "Bebra", "bebra@mail.ru", "777", Role.USER),
+                new User(null, "Zebra", "zebra@mail.ru", "666", Role.USER),
+                new User(null, "Zebra", "zebra_official@mail.ru", "999", Role.USER)
+        );
         users.forEach(this::save);
     }
 
@@ -45,7 +43,7 @@ public class InMemoryUserRepository implements UserRepository {
             repository.put(user.getId(), user);
             return user;
         }
-        return repository.computeIfPresent(user.getId(), (id, oldMeal) -> user);
+        return repository.computeIfPresent(user.getId(), (id, oldUser) -> user);
     }
 
     @Override
@@ -65,8 +63,9 @@ public class InMemoryUserRepository implements UserRepository {
     @Override
     public User getByEmail(String email) {
         log.info("getByEmail {}", email);
-        return repository.values().stream()
-                .filter(user -> user.getEmail().equals(email))
-                .findFirst().get();
+        Optional<User> userOptional = repository.values().stream()
+                .filter(user -> user.getEmail().equals(email.toLowerCase(Locale.ROOT)))
+                .findFirst();
+        return userOptional.orElseThrow(() -> new NotFoundException("User with email " + email + " not found"));
     }
 }

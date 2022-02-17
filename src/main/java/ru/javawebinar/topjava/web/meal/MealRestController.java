@@ -5,14 +5,18 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import ru.javawebinar.topjava.model.Meal;
 import ru.javawebinar.topjava.service.MealService;
+import ru.javawebinar.topjava.to.MealTo;
+import ru.javawebinar.topjava.util.MealsUtil;
 
-import java.util.Collection;
+import java.util.List;
 
+import static ru.javawebinar.topjava.util.ValidationUtil.checkNew;
 import static ru.javawebinar.topjava.web.SecurityUtil.authUserId;
+import static ru.javawebinar.topjava.util.ValidationUtil.assureIdConsistent;
 
 @Controller
 public class MealRestController {
-    protected final Logger log = LoggerFactory.getLogger(getClass());
+    private final Logger log = LoggerFactory.getLogger(getClass());
 
     private MealService service;
 
@@ -25,9 +29,9 @@ public class MealRestController {
         return service.get(id, authUserId());
     }
 
-    public Collection<Meal> getAll() {
+    public List<MealTo> getAll() {
         log.info("getAll");
-        return service.getAll(authUserId());
+        return MealsUtil.getTos(service.getAll(authUserId()), MealsUtil.DEFAULT_CALORIES_PER_DAY);
     }
 
     public void delete(int id) {
@@ -35,13 +39,15 @@ public class MealRestController {
         service.delete(id, authUserId());
     }
 
-    public void update(Meal meal) {
-        log.info("update {}", meal);
+    public void update(Meal meal, int id) {
+        log.info("update {} with id {}", meal, id);
+        assureIdConsistent(meal, id);
         service.update(meal, authUserId());
     }
 
     public void create(Meal meal) {
         log.info("create {}", meal);
+        checkNew(meal);
         service.create(meal, authUserId());
     }
 }
