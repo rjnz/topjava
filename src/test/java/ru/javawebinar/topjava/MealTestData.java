@@ -23,6 +23,7 @@ public class MealTestData {
     public static final Meal adminBreakfast = new Meal(START_SEQ + 9, LocalDateTime.of(2022, Month.FEBRUARY, 19, 6, 30), "admin breakfast", 1001);
     public static final Meal adminLunch = new Meal(START_SEQ + 10, LocalDateTime.of(2022, Month.FEBRUARY, 19, 11, 0), "admin lunch", 501);
     public static final Meal adminDinner = new Meal(START_SEQ + 11, LocalDateTime.of(2022, Month.FEBRUARY, 19, 17, 30), "admin dinner", 251);
+    public static final Meal userNightMeal = new Meal(START_SEQ + 12, LocalDateTime.of(2022, Month.FEBRUARY, 21, 0, 0), "user night meal", 1112);
 
     public static Meal getNew() {
         return new Meal(null, LocalDateTime.of(2022, Month.FEBRUARY, 21, 1, 59, 59), "night food", 1111);
