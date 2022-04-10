@@ -29,6 +29,10 @@ function updateRow(id) {
     });
 }
 
+function formatDate(date) {
+    return date.replace('T', ' ').substr(0, 16);
+}
+
 function deleteRow(id) {
     if (confirm(i18n['common.confirm'])) {
         $.ajax({
